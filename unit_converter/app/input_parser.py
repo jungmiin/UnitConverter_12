@@ -53,6 +53,10 @@ class InputParser:
     후속 GREEN 단계에서 구현한다.
     """
 
+    def is_registration_input(self, raw_input: str) -> bool:
+        """동적 단위 등록 입력인지 판별한다."""
+        return " = " in raw_input and ":" not in raw_input
+
     def parse(self, raw_input: str) -> ParsedInput:
         """입력 문자열을 파싱한다.
 

@@ -66,14 +66,11 @@ class UnitRegistry:
     def register_defaults(self) -> None:
         """기본 단위(meter, feet, yard)를 등록한다.
 
-        TODO: meter, feet, yard 등록 로직 구현.
-              비율: 1 meter = 3.28084 feet, 1 meter = 1.09361 yard.
-              비율은 이 메서드 또는 ConfigLoader 한 경로에서만 정의할 것.
+        비율 정의는 ConfigLoader.default_units_config() 단일 경로에서 가져온다.
         """
-        self.register(RatioBasedLengthUnit(name="meter", meters_per_unit=1.0))
-        self.register(
-            RatioBasedLengthUnit(name="feet", meters_per_unit=FEET_TO_METER)
+        from unit_converter.infrastructure.config_loader import (
+            ConfigLoader,
+            default_units_config,
         )
-        self.register(
-            RatioBasedLengthUnit(name="yard", meters_per_unit=YARD_TO_METER)
-        )
+
+        ConfigLoader().apply_to_registry(default_units_config(), self)

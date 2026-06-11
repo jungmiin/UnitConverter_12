@@ -8,7 +8,22 @@ from typing import Any
 
 import yaml
 
-from unit_converter.domain.unit_registry import UnitRegistry
+from unit_converter.domain.unit_registry import (
+    FEET_TO_METER,
+    YARD_TO_METER,
+    UnitRegistry,
+)
+
+
+def default_units_config() -> dict[str, Any]:
+    """기본 단위 비율 설정 — register_defaults와 config 파일의 단일 소스."""
+    return {
+        "units": [
+            {"name": "meter", "meters_per_unit": 1.0},
+            {"name": "feet", "meters_per_unit": FEET_TO_METER},
+            {"name": "yard", "meters_per_unit": YARD_TO_METER},
+        ]
+    }
 
 
 class ConfigLoader:

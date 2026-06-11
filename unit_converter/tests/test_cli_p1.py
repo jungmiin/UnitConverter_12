@@ -14,7 +14,7 @@ import pytest
 
 from unit_converter.app.output_formatter import OutputFormat
 from unit_converter.cli import run
-from unit_converter.tests.test_config_loader import _default_units_config
+from unit_converter.infrastructure.config_loader import default_units_config
 
 
 # --- B-CLI-05a: TEXT 기본값 회귀 (P0 golden master 보호) ---
@@ -72,7 +72,7 @@ def test_b_cli_06_register_then_convert():
 def test_b_cli_07_run_with_config_file(tmp_path):
     """B-CLI-07: config 파일 로드 파이프라인 — meter:2.5 P0 golden master."""
     config_path = tmp_path / "units.json"
-    config_path.write_text(json.dumps(_default_units_config()), encoding="utf-8")
+    config_path.write_text(json.dumps(default_units_config()), encoding="utf-8")
 
     output = run("meter:2.5", config_path=config_path)
 

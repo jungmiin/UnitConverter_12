@@ -16,21 +16,10 @@ from unit_converter.domain.unit_registry import (
     YARD_TO_METER,
     UnitRegistry,
 )
-from unit_converter.infrastructure.config_loader import ConfigLoader
+from unit_converter.infrastructure.config_loader import ConfigLoader, default_units_config
 from unit_converter.tests.test_converter import _result_for
 
 CUSTOM_FEET_METERS_PER_UNIT = 0.35
-
-
-def _default_units_config() -> dict:
-    """P0 비율과 일치하는 기본 설정 (B-CLI-07 golden master 호환)."""
-    return {
-        "units": [
-            {"name": "meter", "meters_per_unit": 1.0},
-            {"name": "feet", "meters_per_unit": FEET_TO_METER},
-            {"name": "yard", "meters_per_unit": YARD_TO_METER},
-        ]
-    }
 
 
 def _default_units_yaml() -> str:
@@ -62,7 +51,7 @@ def _custom_feet_config() -> dict:
 def test_i_cfg_01_load_json_config(tmp_path):
     """I-CFG-01: JSON 설정 파일 로드 — units 3건 반환."""
     config_path = tmp_path / "units.json"
-    config_path.write_text(json.dumps(_default_units_config()), encoding="utf-8")
+    config_path.write_text(json.dumps(default_units_config()), encoding="utf-8")
     loader = ConfigLoader()
 
     config = loader.load_from_file(config_path)
@@ -102,7 +91,7 @@ def test_i_cfg_03_apply_to_registry():
     loader = ConfigLoader()
     registry = UnitRegistry()
 
-    loader.apply_to_registry(_default_units_config(), registry)
+    loader.apply_to_registry(default_units_config(), registry)
 
     units = {unit.name: unit for unit in registry.all_units()}
     assert set(units) == {"meter", "feet", "yard"}

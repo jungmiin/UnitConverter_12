@@ -35,6 +35,10 @@ class LengthConverter:
     def __init__(self, registry: UnitRegistry) -> None:
         self._registry = registry
 
+    def register_ratio(self, name: str, meters_per_unit: float) -> None:
+        """연결된 Registry에 단위 비율을 등록한다."""
+        self._registry.register_ratio(name, meters_per_unit)
+
     def convert_to_all(self, value: float, source_unit_name: str) -> Iterable[ConversionResult]:
         """주어진 값을 등록된 모든 단위로 변환한다.
 
