@@ -1,7 +1,8 @@
-"""Input parser — "unit:value" 형식 입력 파싱."""
+"""Input parser — "unit:value" 및 동적 단위 등록 입력 파싱."""
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 
@@ -16,6 +17,26 @@ class ParsedInput:
 
     unit: str
     value: float
+
+
+@dataclass(frozen=True)
+class ParsedRegistration:
+    """파싱된 동적 단위 등록 입력.
+
+    Attributes:
+        unit: 등록할 단위 이름.
+        base_unit: 기준 단위 이름 (예: meter).
+        ratio: 1 단위당 meter 환산 비율 (meters_per_unit).
+    """
+
+    unit: str
+    base_unit: str
+    ratio: float
+
+
+_REGISTRATION_PATTERN = re.compile(
+    r"^\s*(\d+(?:\.\d+)?)\s+(\w+)\s*=\s*(\d+(?:\.\d+)?)\s+(\w+)\s*$"
+)
 
 
 class InputParseError(Exception):
@@ -61,3 +82,32 @@ class InputParser:
             raise ValueError(NEGATIVE_VALUE_MESSAGE)
 
         return ParsedInput(unit=unit, value=value)
+
+    def parse_registration(self, raw_input: str) -> ParsedRegistration:
+        """동적 단위 등록 입력을 파싱한다.
+
+        Args:
+            raw_input: `1 cubit = 0.4572 meter` 형식 문자열.
+
+        Returns:
+            ParsedRegistration 인스턴스.
+        """
+        match = _REGISTRATION_PATTERN.match(raw_input)
+        if match is None:
+            raise InputParseError(
+                "Invalid registration format. Use 1 unit = ratio meter "
+                "(ex: 1 cubit = 0.4572 meter)"
+            )
+
+        quantity_str, unit, ratio_str, base_unit = match.groups()
+        quantity = float(quantity_str)
+        ratio_value = float(ratio_str)
+
+        if base_unit != "meter":
+            raise InputParseError("Registration base unit must be meter")
+
+        if quantity <= 0:
+            raise InputParseError("Registration quantity must be positive")
+
+        meters_per_unit = ratio_value / quantity
+        return ParsedRegistration(unit=unit, base_unit=base_unit, ratio=meters_per_unit)

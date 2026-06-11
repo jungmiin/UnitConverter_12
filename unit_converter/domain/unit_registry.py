@@ -22,6 +22,17 @@ class UnitRegistry:
     def __init__(self) -> None:
         self._units: dict[str, LengthUnit] = {}
 
+    def register_ratio(self, name: str, meters_per_unit: float) -> None:
+        """이름과 meter 기준 비율로 단위를 등록한다.
+
+        Args:
+            name: 단위 이름.
+            meters_per_unit: 1 단위가 몇 meter에 해당하는지.
+        """
+        self.register(
+            RatioBasedLengthUnit(name=name, meters_per_unit=meters_per_unit)
+        )
+
     def register(self, unit: LengthUnit) -> None:
         """단위를 레지스트리에 등록한다.
 

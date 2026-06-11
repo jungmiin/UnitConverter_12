@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from enum import Enum
 from typing import Iterable
 
@@ -37,15 +38,43 @@ class OutputFormatter:
         Returns:
             포맷팅된 출력 문자열.
 
-        TODO: TEXT 포맷 — `{value} {unit} = {result} {target_unit}` 3줄 형식.
-        TODO: JSON 포맷 구현.
-        TODO: CSV 포맷 구현.
-        TODO: TABLE 포맷 구현.
         """
+        items = list(results)
+
         if output_format == OutputFormat.TEXT:
             lines = [
                 f"{r.source_value} {r.source_unit} = {r.target_value} {r.target_unit}"
-                for r in results
+                for r in items
             ]
             return "\n".join(lines)
+
+        if output_format == OutputFormat.JSON:
+            payload = [
+                {
+                    "source_value": r.source_value,
+                    "source_unit": r.source_unit,
+                    "target_value": r.target_value,
+                    "target_unit": r.target_unit,
+                }
+                for r in items
+            ]
+            return json.dumps(payload)
+
+        if output_format == OutputFormat.CSV:
+            lines = ["source_value,source_unit,target_value,target_unit"]
+            for r in items:
+                lines.append(
+                    f"{r.source_value},{r.source_unit},{r.target_value},{r.target_unit}"
+                )
+            return "\n".join(lines)
+
+        if output_format == OutputFormat.TABLE:
+            header = "source_value | source_unit | target_value | target_unit"
+            separator = "-------------|-------------|--------------|-------------"
+            rows = [
+                f"{r.source_value:<13}| {r.source_unit:<12}| {r.target_value:<13}| {r.target_unit}"
+                for r in items
+            ]
+            return "\n".join([header, separator, *rows])
+
         raise NotImplementedError

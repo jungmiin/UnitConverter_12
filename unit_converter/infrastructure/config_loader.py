@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from unit_converter.domain.unit_registry import UnitRegistry
 
@@ -23,10 +26,19 @@ class ConfigLoader:
         Returns:
             파싱된 설정 딕셔너리.
 
-        TODO: JSON/YAML 파일 파싱 구현.
-        TODO: 지원하지 않는 확장자 처리 정책 결정.
         """
-        raise NotImplementedError
+        suffix = path.suffix.lower()
+        text = path.read_text(encoding="utf-8")
+
+        if suffix == ".json":
+            return json.loads(text)
+        if suffix in (".yaml", ".yml"):
+            data = yaml.safe_load(text)
+            if not isinstance(data, dict):
+                raise ValueError("YAML config must be a mapping")
+            return data
+
+        raise ValueError(f"Unsupported config file extension: {suffix}")
 
     def apply_to_registry(self, config: dict[str, Any], registry: UnitRegistry) -> None:
         """설정 데이터를 UnitRegistry에 반영한다.
@@ -35,7 +47,10 @@ class ConfigLoader:
             config: load_from_file()이 반환한 설정 데이터.
             registry: 단위를 등록할 레지스트리.
 
-        TODO: 설정 스키마 정의 및 registry.register() 호출 구현.
-        TODO: 동적 단위 등록 (예: 1 cubit = 0.4572 meter) 지원.
         """
-        raise NotImplementedError
+        units = config.get("units", [])
+        for unit_def in units:
+            registry.register_ratio(
+                unit_def["name"],
+                float(unit_def["meters_per_unit"]),
+            )
