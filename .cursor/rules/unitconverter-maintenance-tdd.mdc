@@ -1,0 +1,77 @@
+---
+description: UnitConverter.py TDD·OCP/SRP 유지보수 규칙 — ARRR 워크플로와 테스트 우선 변경 제약
+alwaysApply: true
+---
+
+# UnitConverter 유지보수 TDD 규칙
+
+## Project Goal
+
+- `UnitConverter.py`를 TDD 기반으로 개선한다.
+- 목표는 단순 기능 구현이 아니라 **유지보수 가능한 구조**로 만드는 것이다.
+- 새 단위, 새 출력 포맷, 설정 파일 로드가 추가되어도 **기존 변환 로직의 변경을 최소화**한다.
+- **Parser / Converter / Registry / Formatter / Config Loader** 책임을 분리한다.
+
+### 현재 `UnitConverter.py` 기준선
+
+- 입력: `unit:value` (예: `meter:2.5`)
+- 지원 단위: meter, feet, yard
+- 비율: `1 meter = 3.28084 feet`, `1 meter = 1.09361 yard`
+- 출력: `{value} {unit} = {result} {target_unit}` 형식, 3줄
+- 검증: `:` 없음, 잘못된 숫자, unknown unit (음수 검증은 README 요구이나 현재 미구현)
+
+### Mom Test 페르소나·진짜 문제
+
+- **페르소나**: `UnitConverter.py`를 수정·확장하는 개발자/유지보수자 (CLI 최종 사용자 아님)
+- **진짜 문제**: 단위 인식·비율 환산·출력·입력 검증이 `main()`에 묶여 수정 범위·회귀 위험 판단이 어렵고, 테스트 없이 수동 실행에 의존함
+
+## Core Rule
+
+- 모든 변경은 **Mom Test 문제**, **PRD(README) 요구사항**, **테스트** 중 하나와 연결되어야 한다.
+- **테스트 없는 구현을 금지**한다.
+- **RED** 단계에서 구현하지 않는다.
+- **GREEN** 단계에서 **최소 구현**만 한다.
+- **REFACTOR** 단계에서 **외부 동작을 바꾸지 않는다**.
+- 테스트를 **약화하거나 삭제하지 않는다**.
+- 기존 동작을 바꾸려면 **먼저 회귀 테스트를 추가**한다.
+- 출력 문자열, 에러 메시지, exit code 변경은 **테스트로 고정된 뒤에만** 수행한다.
+
+## OCP Rule
+
+- 새 단위 추가 시 **기존 변환 계산 로직을 직접 수정하지 않는** 방향으로 설계한다.
+- 단위 정보는 **registry 또는 설정 데이터**로 확장 가능해야 한다.
+- `if/elif` 체인으로 단위별 변환 로직을 계속 추가하지 않는다.
+- 비율은 **한 경로**(Registry 또는 Config Loader)에서만 정의한다.
+
+## SRP Rule
+
+- 입력 파싱 책임은 **Parser**에 둔다.
+- 단위 등록과 조회 책임은 **Registry**에 둔다.
+- 변환 계산 책임은 **Converter**에 둔다.
+- 출력 형식 책임은 **Formatter**에 둔다.
+- 설정 파일 로드 책임은 **Config Loader**에 둔다.
+- **CLI 입출력** 책임과 **비즈니스 로직**을 섞지 않는다.
+
+## ARRR Rule
+
+| 단계 | 명령 | 산출물 |
+|------|------|--------|
+| A — Ask (RED) | `/red-test-plan` → `/red-skeleton` | 설계표·실패 테스트 스켈레톤 |
+| R — Respond (GREEN) | `/green-minimal` → `/golden-master` | 최소 통과 구현·회귀 고정 |
+| R — Refine (REFACTOR) | `/refactor-smell` → `/refactor-safe` | 스멜 분석·테스트 유지 리팩토링 |
+| R — Repeat | `/traceability`, `/test-loop`, `/export` | 추적성·루프·세션 기록 |
+
+- `/red-test-plan` — 테스트 **계획만** 작성한다.
+- `/red-skeleton` — **실패하는** 테스트 스켈레톤만 작성한다.
+- `/green-minimal` — 테스트 통과를 위한 **최소 구현**만 한다.
+- `/golden-master` — 기존 동작을 **회귀 테스트**로 고정한다.
+- `/refactor-smell` — 리팩토링 **후보만** 분석한다.
+- `/refactor-safe` — **승인된** 리팩토링만 수행한다.
+
+## 금지 (AI 과변경 방지)
+
+- 테스트 없이 `UnitConverter.py` 전면 재작성
+- RED 단계에서 프로덕션 대규모 리팩토링
+- REFACTOR 단계에서 기능 추가
+- 설정·동적 등록·출력 포맷을 Mom Test·테스트 없이 한 diff에 일괄 구현
+- OCP/SRP를 클래스 이름·주석만으로 충족하고 변경 지점·회귀 검증은 그대로 두기
