@@ -30,7 +30,20 @@ def run(
     TODO: OutputFormatter로 결과 포맷팅.
     TODO: 없는 단위·음수·형식 오류 예외 처리 및 메시지 정책.
     """
-    raise NotImplementedError
+    parser = InputParser()
+    parsed = parser.parse(raw_input)
+
+    registry = UnitRegistry()
+    registry.register_defaults()
+
+    if registry.get(parsed.unit) is None:
+        raise ValueError(f"Unknown unit: {parsed.unit}")
+
+    converter = LengthConverter(registry)
+    results = converter.convert_to_all(parsed.value, parsed.unit)
+
+    formatter = OutputFormatter()
+    return formatter.format(results, output_format)
 
 
 def main() -> None:

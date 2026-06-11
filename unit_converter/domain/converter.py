@@ -48,7 +48,18 @@ class LengthConverter:
         TODO: source_unit_name 조회 실패 시 예외 정책 결정.
         TODO: meter 기준 환산 후 각 대상 단위로 변환하는 계산 구현.
         """
-        raise NotImplementedError
+        source_unit = self._registry.get(source_unit_name)
+        if source_unit is None:
+            raise ValueError(f"Unknown unit: {source_unit_name}")
+
+        meter_value = source_unit.to_meter(value)
+        for target_unit in self._registry.all_units():
+            yield ConversionResult(
+                source_value=value,
+                source_unit=source_unit_name,
+                target_value=target_unit.from_meter(meter_value),
+                target_unit=target_unit.name,
+            )
 
     def convert(self, value: float, source_unit_name: str, target_unit_name: str) -> ConversionResult:
         """주어진 값을 특정 대상 단위로 변환한다.
@@ -64,4 +75,17 @@ class LengthConverter:
         TODO: 단위 조회 실패 시 예외 정책 결정.
         TODO: meter 기준 환산 계산 구현.
         """
-        raise NotImplementedError
+        source_unit = self._registry.get(source_unit_name)
+        if source_unit is None:
+            raise ValueError(f"Unknown unit: {source_unit_name}")
+        target_unit = self._registry.get(target_unit_name)
+        if target_unit is None:
+            raise ValueError(f"Unknown unit: {target_unit_name}")
+
+        meter_value = source_unit.to_meter(value)
+        return ConversionResult(
+            source_value=value,
+            source_unit=source_unit_name,
+            target_value=target_unit.from_meter(meter_value),
+            target_unit=target_unit_name,
+        )

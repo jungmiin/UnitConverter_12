@@ -1,4 +1,9 @@
-"""Boundary/CLI-level tests — 입력 문자열, 오류 처리, CLI 출력 검증."""
+"""Boundary/CLI-level tests — 입력 문자열, 오류 처리, CLI 출력 검증.
+
+Golden Master (UnitConverter.py baseline contract):
+  B-FMT-01, B-CLI-01~04 — 변환 출력·오류 메시지 문자열 고정.
+  REFACTOR 후에도 동일해야 하며, 변경 시 의도적 요구 + 테스트 갱신 필요.
+"""
 
 from __future__ import annotations
 
@@ -120,3 +125,33 @@ def test_b_cli_02_run_error_messages(raw_input: str, expected_pattern: str):
     """B-CLI-02: run() 오류 메시지가 UnitConverter.py와 일치."""
     with pytest.raises(Exception, match=expected_pattern):
         run(raw_input)
+
+
+# --- B-CLI-03: run feet:10 golden master (Mom Test SC-3) ---
+
+
+def test_b_cli_03_run_feet_golden_master():
+    """B-CLI-03: run('feet:10') end-to-end golden master."""
+    output = run("feet:10")
+
+    expected = (
+        "10.0 feet = 3.047999902464003 meter\n"
+        "10.0 feet = 10.0 feet\n"
+        "10.0 feet = 3.333323173333658 yard"
+    )
+    assert output == expected
+
+
+# --- B-CLI-04: run yard:1 golden master (Mom Test SC-3) ---
+
+
+def test_b_cli_04_run_yard_golden_master():
+    """B-CLI-04: run('yard:1') end-to-end golden master."""
+    output = run("yard:1")
+
+    expected = (
+        "1.0 yard = 0.9144027578387177 meter\n"
+        "1.0 yard = 3.0000091440275787 feet\n"
+        "1.0 yard = 1.0 yard"
+    )
+    assert output == expected

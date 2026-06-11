@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from typing import Iterable, Optional
 
-from unit_converter.domain.length_unit import LengthUnit
+from unit_converter.domain.length_unit import LengthUnit, RatioBasedLengthUnit
+
+METER_TO_FEET = 3.28084
+METER_TO_YARD = 1.09361
 
 
 class UnitRegistry:
@@ -25,7 +28,7 @@ class UnitRegistry:
 
         TODO: 동일 이름 중복 등록 처리 정책 결정.
         """
-        raise NotImplementedError
+        self._units[unit.name] = unit
 
     def get(self, name: str) -> Optional[LengthUnit]:
         """이름으로 단위를 조회한다.
@@ -38,14 +41,14 @@ class UnitRegistry:
 
         TODO: 대소문자 정규화 여부 결정.
         """
-        raise NotImplementedError
+        return self._units.get(name)
 
     def all_units(self) -> Iterable[LengthUnit]:
         """등록된 모든 단위를 반환한다.
 
         TODO: 반환 순서 정책 결정 (등록 순 vs 이름 정렬).
         """
-        raise NotImplementedError
+        return self._units.values()
 
     def register_defaults(self) -> None:
         """기본 단위(meter, feet, yard)를 등록한다.
@@ -54,4 +57,10 @@ class UnitRegistry:
               비율: 1 meter = 3.28084 feet, 1 meter = 1.09361 yard.
               비율은 이 메서드 또는 ConfigLoader 한 경로에서만 정의할 것.
         """
-        raise NotImplementedError
+        self.register(RatioBasedLengthUnit(name="meter", meters_per_unit=1.0))
+        self.register(
+            RatioBasedLengthUnit(name="feet", meters_per_unit=1 / METER_TO_FEET)
+        )
+        self.register(
+            RatioBasedLengthUnit(name="yard", meters_per_unit=1 / METER_TO_YARD)
+        )

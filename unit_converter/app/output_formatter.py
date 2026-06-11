@@ -42,4 +42,10 @@ class OutputFormatter:
         TODO: CSV 포맷 구현.
         TODO: TABLE 포맷 구현.
         """
+        if output_format == OutputFormat.TEXT:
+            lines = [
+                f"{r.source_value} {r.source_unit} = {r.target_value} {r.target_unit}"
+                for r in results
+            ]
+            return "\n".join(lines)
         raise NotImplementedError
