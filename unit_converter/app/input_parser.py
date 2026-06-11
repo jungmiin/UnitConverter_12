@@ -18,6 +18,10 @@ class ParsedInput:
     value: float
 
 
+class InputParseError(Exception):
+    """입력 파싱 오류."""
+
+
 class InputParser:
     """`unit:value` 형식 문자열을 파싱한다.
 
@@ -39,4 +43,19 @@ class InputParser:
         TODO: 음수 값 검증.
         TODO: 빈 문자열·공백 처리.
         """
-        raise NotImplementedError
+        if ":" not in raw_input:
+            raise InputParseError(
+                "Invalid format. Use unit:value (ex: meter:2.5)"
+            )
+
+        unit, value_str = raw_input.split(":", 1)
+
+        try:
+            value = float(value_str)
+        except ValueError:
+            raise InputParseError(f"Invalid number: {value_str}") from None
+
+        if value < 0:
+            raise ValueError("Negative value not allowed")
+
+        return ParsedInput(unit=unit, value=value)

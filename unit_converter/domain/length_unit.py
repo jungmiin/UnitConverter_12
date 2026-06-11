@@ -40,15 +40,9 @@ class RatioBasedLengthUnit:
     meters_per_unit: float
 
     def to_meter(self, value: float) -> float:
-        """주어진 값을 meter 기준으로 변환한다.
-
-        TODO: value * meters_per_unit 계산 구현.
-        """
-        raise NotImplementedError
+        """주어진 값을 meter 기준으로 변환한다."""
+        return value * self.meters_per_unit
 
     def from_meter(self, meter_value: float) -> float:
-        """meter 기준 값을 이 단위로 변환한다.
-
-        TODO: meter_value / meters_per_unit 계산 구현.
-        """
-        raise NotImplementedError
+        """meter 기준 값을 이 단위로 변환한다."""
+        return meter_value / self.meters_per_unit
