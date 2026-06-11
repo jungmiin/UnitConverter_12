@@ -6,12 +6,13 @@ import pytest
 
 from unit_converter.domain.converter import ConversionResult, LengthConverter
 from unit_converter.domain.length_unit import RatioBasedLengthUnit
-from unit_converter.domain.unit_registry import UnitRegistry
-
-FEET_TO_METER = 1 / 3.28084
-YARD_TO_METER = 1 / 1.09361
-METER_TO_FEET = 3.28084
-METER_TO_YARD = 1.09361
+from unit_converter.domain.unit_registry import (
+    FEET_TO_METER,
+    METER_TO_FEET,
+    METER_TO_YARD,
+    UnitRegistry,
+    YARD_TO_METER,
+)
 
 
 def _default_registry() -> UnitRegistry:

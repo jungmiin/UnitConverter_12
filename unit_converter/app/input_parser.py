@@ -22,6 +22,9 @@ class InputParseError(Exception):
     """입력 파싱 오류."""
 
 
+NEGATIVE_VALUE_MESSAGE = "Negative value not allowed"
+
+
 class InputParser:
     """`unit:value` 형식 문자열을 파싱한다.
 
@@ -40,7 +43,6 @@ class InputParser:
 
         TODO: `:` 없음 → 형식 오류 처리.
         TODO: 잘못된 숫자 → 숫자 오류 처리.
-        TODO: 음수 값 검증.
         TODO: 빈 문자열·공백 처리.
         """
         if ":" not in raw_input:
@@ -56,6 +58,6 @@ class InputParser:
             raise InputParseError(f"Invalid number: {value_str}") from None
 
         if value < 0:
-            raise ValueError("Negative value not allowed")
+            raise ValueError(NEGATIVE_VALUE_MESSAGE)
 
         return ParsedInput(unit=unit, value=value)

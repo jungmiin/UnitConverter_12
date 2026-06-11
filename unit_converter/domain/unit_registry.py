@@ -8,6 +8,8 @@ from unit_converter.domain.length_unit import LengthUnit, RatioBasedLengthUnit
 
 METER_TO_FEET = 3.28084
 METER_TO_YARD = 1.09361
+FEET_TO_METER = 1 / METER_TO_FEET
+YARD_TO_METER = 1 / METER_TO_YARD
 
 
 class UnitRegistry:
@@ -59,8 +61,8 @@ class UnitRegistry:
         """
         self.register(RatioBasedLengthUnit(name="meter", meters_per_unit=1.0))
         self.register(
-            RatioBasedLengthUnit(name="feet", meters_per_unit=1 / METER_TO_FEET)
+            RatioBasedLengthUnit(name="feet", meters_per_unit=FEET_TO_METER)
         )
         self.register(
-            RatioBasedLengthUnit(name="yard", meters_per_unit=1 / METER_TO_YARD)
+            RatioBasedLengthUnit(name="yard", meters_per_unit=YARD_TO_METER)
         )

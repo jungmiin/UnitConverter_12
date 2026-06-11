@@ -9,13 +9,15 @@ from __future__ import annotations
 
 import pytest
 
-from unit_converter.app.input_parser import InputParser, ParsedInput
+from unit_converter.app.input_parser import (
+    InputParser,
+    NEGATIVE_VALUE_MESSAGE,
+    ParsedInput,
+)
 from unit_converter.app.output_formatter import OutputFormat, OutputFormatter
 from unit_converter.cli import run
 from unit_converter.domain.converter import ConversionResult
-
-METER_TO_FEET = 3.28084
-METER_TO_YARD = 1.09361
+from unit_converter.domain.unit_registry import METER_TO_FEET, METER_TO_YARD
 
 
 # --- B-PARSE-01: meter:2.5 정상 파싱 ---
@@ -52,16 +54,21 @@ def test_b_err_04_invalid_number():
         parser.parse("meter:abc")
 
 
-# --- B-ERR-02: 음수 입력 거부 ---
+# --- B-ERR-02: 음수 입력 거부 (golden master) ---
 
 
-def test_b_err_02_negative_value():
-    """B-ERR-02: 음수 입력 거부."""
+def test_b_err_02_negative_value_parser():
+    """B-ERR-02: InputParser — 음수 입력 거부, 메시지·예외 타입 고정."""
     parser = InputParser()
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(ValueError, match=NEGATIVE_VALUE_MESSAGE):
         parser.parse("meter:-1")
-    assert type(exc_info.value) is not NotImplementedError
+
+
+def test_b_err_02_negative_value_run():
+    """B-ERR-02: run() — 음수 입력 거부, 파이프라인 end-to-end 고정."""
+    with pytest.raises(ValueError, match=NEGATIVE_VALUE_MESSAGE):
+        run("meter:-1")
 
 
 # --- B-ERR-03: unknown unit 거부 ---
@@ -118,6 +125,7 @@ def test_b_cli_01_run_meter_golden_master():
     [
         ("meter2.5", r"Invalid format\. Use unit:value \(ex: meter:2\.5\)"),
         ("meter:abc", r"Invalid number: abc"),
+        ("meter:-1", NEGATIVE_VALUE_MESSAGE),
         ("cubit:1", r"Unknown unit: cubit"),
     ],
 )
